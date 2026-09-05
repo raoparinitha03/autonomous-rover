@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<!--
+  Simple visual-only URDF for the 6-DOF pick-and-place arm.
+  Each joint below is named after, and roughly limited to the same range
+  as, the corresponding PWM channel in the Arduino sketch:
+    waist_joint        <-> C4_WAIST  (servo, ~60-120 deg range used by the pipeline)
+    shoulder_joint     <-> C5_SHDR
+    elbow_joint        <-> C6_ELBW
+    wrist_roll_joint   <-> C7_ROLL
+    wrist_pitch_joint  <-> C8_PTCH
+    left/right_finger_joint <-> C9_GRP (gripper open/close)
+
+  No meshes: geometry is boxes/cylinders so it's viewable with nothing
+  but robot_state_publisher + joint_state_publisher_gui + rviz2.
+-->
+<robot name="pick_place_arm">
+
+  <material name="grey">
+    <color rgba="0.6 0.6 0.6 1"/>
+  </material>
+  <material name="orange">
+    <color rgba="0.9 0.5 0.1 1"/>
+  </material>
+  <material name="dark">
+    <color rgba="0.2 0.2 0.2 1"/>
+  </material>
+
+  <!-- Fixed base plate -->
+  <link name="base_link">
+    <visual>
+      <geometry><cylinder radius="0.06" length="0.02"/></geometry>
+      <material name="dark"/>
+    </visual>
+  </link>
+
+  <!-- Waist: rotates the whole arm left/right (channel 4) -->
+  <link name="waist_link">
+    <visual>
+      <origin xyz="0 0 0.03" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.03" length="0.06"/></geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  <joint name="waist_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="waist_link"/>
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.047" upper="1.047" effort="5" velocity="1"/>
+  </joint>
+
+  <!-- Shoulder: lifts the upper arm (channel 5) -->
+  <link name="shoulder_link">
+    <visual>
+      <origin xyz="0 0 0.08" rpy="0 0 0"/>
+      <geometry><box size="0.03 0.03 0.16"/></geometry>
+      <material name="orange"/>
+    </visual>
+  </link>
+  <joint name="shoulder_joint" type="revolute">
+    <parent link="waist_link"/>
+    <child link="shoulder_link"/>
+    <origin xyz="0 0 0.06" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.571" upper="1.571" effort="5" velocity="1"/>
+  </joint>
+
+  <!-- Elbow: bends the forearm (channel 6) -->
+  <link name="elbow_link">
+    <visual>
+      <origin xyz="0 0 0.07" rpy="0 0 0"/>
+      <geometry><box size="0.025 0.025 0.14"/></geometry>
+      <material name="orange"/>
+    </visual>
+  </link>
+  <joint name="elbow_joint" type="revolute">
+    <parent link="shoulder_link"/>
+    <child link="elbow_link"/>
+    <origin xyz="0 0 0.16" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.571" upper="1.571" effort="5" velocity="1"/>
+  </joint>
+
+  <!-- Wrist roll (channel 7) -->
+  <link name="wrist_roll_link">
+    <visual>
+      <geometry><cylinder radius="0.015" length="0.03"/></geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  <joint name="wrist_roll_joint" type="continuous">
+    <parent link="elbow_link"/>
+    <child link="wrist_roll_link"/>
+    <origin xyz="0 0 0.14" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- Wrist pitch (channel 8) -->
+  <link name="wrist_pitch_link">
+    <visual>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry><box size="0.02 0.02 0.04"/></geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  <joint name="wrist_pitch_joint" type="revolute">
+    <parent link="wrist_roll_link"/>
+    <child link="wrist_pitch_link"/>
+    <origin xyz="0 0 0.03" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.571" upper="1.571" effort="5" velocity="1"/>
+  </joint>
+
+  <!-- Gripper base -->
+  <link name="gripper_base_link">
+    <visual>
+      <geometry><box size="0.03 0.04 0.02"/></geometry>
+      <material name="dark"/>
+    </visual>
+  </link>
+  <joint name="gripper_base_joint" type="fixed">
+    <parent link="wrist_pitch_link"/>
+    <child link="gripper_base_link"/>
+    <origin xyz="0 0 0.04" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Gripper fingers (channel 9, open/close) -->
+  <link name="left_finger_link">
+    <visual>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry><box size="0.008 0.01 0.04"/></geometry>
+      <material name="dark"/>
+    </visual>
+  </link>
+  <joint name="left_finger_joint" type="prismatic">
+    <parent link="gripper_base_link"/>
+    <child link="left_finger_link"/>
+    <origin xyz="0 0.015 0.01" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.015" effort="2" velocity="0.5"/>
+  </joint>
+
+  <link name="right_finger_link">
+    <visual>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry><box size="0.008 0.01 0.04"/></geometry>
+      <material name="dark"/>
+    </visual>
+  </link>
+  <joint name="right_finger_joint" type="prismatic">
+    <parent link="gripper_base_link"/>
+    <child link="right_finger_link"/>
+    <origin xyz="0 -0.015 0.01" rpy="0 0 0"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="0" upper="0.015" effort="2" velocity="0.5"/>
+  </joint>
+
+</robot>

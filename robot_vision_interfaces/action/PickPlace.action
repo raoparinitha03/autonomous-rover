@@ -1,0 +1,14 @@
+# Goal: target waist angle (degrees, 60-120) and which bin to sort into
+int32 angle
+string label
+---
+# Result: did the physical cycle complete
+bool success
+string message
+---
+# Feedback: coarse progress while the ~20s pick/place cycle runs.
+# NOTE: this is estimated from known step timings in the Arduino sketch's
+# delay() calls, not real per-stage telemetry -- the Arduino only reports
+# one final "DONE". See STAGE_TIMELINE in arm_action_server.py.
+string stage
+float32 progress
