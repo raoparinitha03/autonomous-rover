@@ -1,4 +1,4 @@
-# Construction-Site Hauling Rover: ROS 2 + Gazebo
+# Autonomous Rover: ROS 2 + Gazebo
 
 A simulated differential-drive rover for construction sites. It localises on a
 map with AMCL and navigates to goals with Nav2. Navigation accuracy is measured
