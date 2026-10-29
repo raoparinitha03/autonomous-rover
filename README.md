@@ -70,7 +70,6 @@ own tolerance (15 cm, about 14 degrees) plus localisation error.
 ## Limitations
 
 - Simulation only, with ideal (noise-free) sensors and a flat floor.
-- The evaluation map is generated from the world geometry, not built by SLAM.
 - The camera and IMU are visual placeholders; they publish no data yet.
 - Odometry accuracy during turns has not yet been calibrated against ground truth.
 
